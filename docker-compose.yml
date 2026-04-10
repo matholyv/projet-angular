@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Base de données SQL (MySQL) pour les utilisateurs et annonces
+  mysql-db:
+    image: mysql:8.0
+    container_name: finders-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: finders_db
+      MYSQL_USER: finders_user
+      MYSQL_PASSWORD: finders_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+
+  # Base de données NoSQL (MongoDB) pour la messagerie chat
+  mongodb:
+    image: mongo:latest
+    container_name: finders-mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin_password
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker/mongodb/data:/data/db
+
+networks:
+  default:
+    name: finders-network

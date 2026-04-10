@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build output
+dist/
+out-tsc/
+build/
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation temporaire projet
+todoplan.md
