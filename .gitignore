@@ -24,3 +24,7 @@ Thumbs.db
 
 # Documentation temporaire projet
 todoplan.md
+
+# Volumes Docker & Data
+docker/mysql/data/
+docker/mongodb/data/

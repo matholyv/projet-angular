@@ -1,0 +1,26 @@
+<article class="ad-card">
+  <!-- En-tête : Vendeur -->
+  <div class="ad-card-header">
+    <div class="avatar-placeholder">
+      <svg *ngIf="!authorPseudo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+      </svg>
+    </div>
+    <span class="author-name">{{ authorPseudo || 'Utilisateur' }}</span>
+  </div>
+
+  <!-- Image de l'annonce -->
+  <div class="ad-card-image-wrapper">
+    <img *ngIf="imageUrl" [src]="imageUrl" [alt]="title" class="ad-image">
+    <div *ngIf="!imageUrl" class="no-image-placeholder">
+      <span>Pas de photo</span>
+    </div>
+  </div>
+
+  <!-- Informations produit -->
+  <div class="ad-card-info">
+    <span class="ad-price">{{ price }} €</span>
+    <span class="ad-condition">{{ condition || 'Bon état' }}</span>
+    <h3 class="ad-title">{{ title || 'Titre de l\'annonce' }}</h3>
+  </div>
+</article>

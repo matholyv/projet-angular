@@ -30,6 +30,7 @@ L'application proposera les fonctionnalités fondamentales suivantes pour répon
 4. **Messagerie embarquée** : Discussion interne en temps réel (ou asynchrone) entre l'acheteur et le vendeur.
 5. **Système de Favoris** : Enregistrement d'annonces pour consultation ultérieure.
 6. **Espace Back-Office (Administration)** : Tableau de bord de modération (gestion des profils, validation/suppression des annonces abusives) répondant à des exigences "métier" spécifiques.
+7. **Thème personnalisable (Mode Sombre)** : Bascule dynamique entre un thème clair et un thème sombre pour le confort visuel des utilisateurs.
 
 ## 4. Spécifications Techniques
 Les choix technologiques sont alignés sur les exigences du titre professionnel (environnement sécurisé, DB relationnelle/NoSQL, etc.).
