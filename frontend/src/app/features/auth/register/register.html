@@ -1,0 +1,41 @@
+<div class="auth-wrapper fade-in">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Rejoignez Finders !</h2>
+      <p class="auth-subtitle">Créez votre compte en quelques secondes et commencez à chiner.</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <div class="form-control">
+        <label for="pseudo">Pseudo</label>
+        <input id="pseudo" type="text" formControlName="pseudo" placeholder="ex: ToulouseVintage">
+        <div class="error-msg" *ngIf="registerForm.get('pseudo')?.touched && registerForm.get('pseudo')?.invalid">
+          Votre pseudo doit faire au moins 3 caractères.
+        </div>
+      </div>
+
+      <div class="form-control">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="exemple@domaine.com">
+        <div class="error-msg" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+          Veuillez entrer une adresse email valide.
+        </div>
+      </div>
+
+      <div class="form-control">
+        <label for="password">Mot de passe</label>
+        <input id="password" type="password" formControlName="password" placeholder="••••••••">
+        <div class="error-msg" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+          Mot de passe (minimum 6 caractères).
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary capsule full-width mt-1">S'inscrire</button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Déjà membre ? <a routerLink="/login" class="auth-link">Connectez-vous</a></p>
+    </div>
+  </div>
+</div>
