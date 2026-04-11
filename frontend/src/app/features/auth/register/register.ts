@@ -33,7 +33,7 @@ export class RegisterComponent {
       this.authService.register(userData).subscribe({
         next: (response) => {
           console.log('Réponse du serveur:', response);
-          alert('Inscription validée et stockée dans MySQL !');
+          // Redirection fluide et moderne sans popup bloquante
           this.router.navigate(['/login']);
         },
         error: (error) => {

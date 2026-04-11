@@ -29,6 +29,19 @@ services:
     volumes:
       - ./docker/mongodb/data:/data/db
 
+  # Interface web (phpMyAdmin) pour voir facilement ce qu'il y a dans MySQL
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: finders-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql-db
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql-db
+
 networks:
   default:
     name: finders-network

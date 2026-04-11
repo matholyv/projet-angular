@@ -37,6 +37,7 @@ export class LoginComponent {
         },
         error: (error) => {
           console.error('Erreur de connexion', error);
+          // On pourrait afficher un joli message d'erreur en rouge sous le formulaire à l'avenir
           alert('Email ou mot de passe incorrect.');
         }
       });
