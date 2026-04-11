@@ -1,0 +1,87 @@
+<div class="form-container fade-in">
+  <h2>Vends ton article</h2>
+  
+  <form [formGroup]="adForm" (ngSubmit)="onSubmit()" class="ad-form">
+    
+    <!-- Zone Upload (Drag & Drop) -->
+    <div class="form-section upload-section">
+      <div 
+        class="drag-drop-zone" 
+        [class.dragging]="isDragging"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+      >
+        <!-- État sans image -->
+        <ng-container *ngIf="!imagePreview">
+          <svg xmlns="http://www.w3.org/2000/svg" class="upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <p>Ajoute jusqu'à 20 photos<br><span class="small-hint">Glisse tes photos ici ou clique pour ouvrir l'explorateur</span></p>
+        </ng-container>
+
+        <!-- État avec image -->
+        <ng-container *ngIf="imagePreview">
+          <div class="image-preview-wrapper" (click)="$event.stopPropagation()">
+            <img [src]="imagePreview" alt="Aperçu de l'annonce" class="preview-img">
+            <button type="button" class="btn-remove" (click)="removeImage()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </ng-container>
+
+        <input type="file" #fileInput hidden accept="image/*" (change)="onFileSelected($event)">
+      </div>
+    </div>
+
+    <!-- Détails de l'article -->
+    <div class="form-section group">
+      
+      <!-- Titre -->
+      <div class="form-control">
+        <label for="title">Titre</label>
+        <input id="title" type="text" formControlName="title" placeholder="ex: Chemise Zara taille M">
+        <div class="error-msg" *ngIf="adForm.get('title')?.touched && adForm.get('title')?.invalid">
+          Titre requis (minimum 3 caractères).
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-control">
+        <label for="description">Décris ton article</label>
+        <textarea id="description" formControlName="description" rows="4" placeholder="ex: Porté quelques fois, taille correctement..."></textarea>
+        <div class="error-msg" *ngIf="adForm.get('description')?.touched && adForm.get('description')?.invalid">
+          Description requise.
+        </div>
+      </div>
+
+      <!-- Catégorie & Prix (Flex Row) -->
+      <div class="form-row">
+        <div class="form-control">
+          <label for="category">Catégorie</label>
+          <select id="category" formControlName="categoryId">
+            <option value="" disabled selected>Choisis une catégorie</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-control">
+          <label for="price">Prix</label>
+          <div class="price-input">
+            <input id="price" type="number" formControlName="price" placeholder="0.00" min="1">
+            <span class="currency">€</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation -->
+    <div class="form-actions">
+      <button type="submit" class="btn-primary capsule submit-btn">Ajouter</button>
+    </div>
+
+  </form>
+</div>
