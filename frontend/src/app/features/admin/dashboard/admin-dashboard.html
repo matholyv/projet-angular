@@ -1,0 +1,66 @@
+<div class="admin-wrapper fade-in">
+  <div class="admin-header">
+    <h1>Panneau d'Administration</h1>
+    <p>Bienvenue dans l'espace de modération de 2ndmain.</p>
+  </div>
+
+  <!-- Statistiques Haut de Page -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-title">Utilisateurs inscrits</span>
+      <span class="stat-value">{{ stats.totalUsers }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-title">Annonces actives</span>
+      <span class="stat-value">{{ stats.totalAds }}</span>
+    </div>
+    <div class="stat-card alert-card">
+      <span class="stat-title">Annonces signalées</span>
+      <span class="stat-value">{{ stats.reportedAds }}</span>
+    </div>
+  </div>
+
+  <!-- Tableau de Modération -->
+  <div class="moderation-panel">
+    <h2>Annonces Nécessitant une Modération</h2>
+    
+    <div class="table-container" *ngIf="reportedAdsList.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Titre de l'annonce</th>
+            <th>Vendeur</th>
+            <th>Signalement</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ad of reportedAdsList">
+            <td>#{{ ad.id }}</td>
+            <td class="ad-title-cell">{{ ad.title }}</td>
+            <td>{{ ad.author }}</td>
+            <td><span class="badge warning">{{ ad.reason }}</span></td>
+            <td>{{ ad.date | date:'shortDate':'':'fr-FR' }}</td>
+            <td class="actions-cell">
+              <button class="btn-sm btn-ghost" (click)="ignoreReport(ad.id)">Ignorer</button>
+              <button class="btn-sm btn-danger" (click)="deleteAd(ad.id)">Supprimer</button>
+              <button class="btn-sm btn-ban" (click)="banUser(ad.author)">Bannir Vendeur</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Si plus aucun signalement -->
+    <div class="empty-state" *ngIf="reportedAdsList.length === 0">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h3>Super, tout est propre !</h3>
+      <p>Aucun signalement en attente, la communauté est saine.</p>
+    </div>
+
+  </div>
+</div>
