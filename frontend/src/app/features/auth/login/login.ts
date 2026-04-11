@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,11 @@ import { RouterModule } from '@angular/router';
 export class LoginComponent {
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -22,8 +27,19 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      console.log('Login attempt:', this.loginForm.value);
-      alert('Connexion (simulation) réussie ! Bienvenue sur 2ndmain.');
+      const credentials = this.loginForm.value;
+      
+      this.authService.login(credentials).subscribe({
+        next: (response) => {
+          console.log('Connexion réussie, Token reçu:', response);
+          // On redirige vers la recherche ou le profil
+          this.router.navigate(['/search']);
+        },
+        error: (error) => {
+          console.error('Erreur de connexion', error);
+          alert('Email ou mot de passe incorrect.');
+        }
+      });
     } else {
       this.loginForm.markAllAsTouched();
     }

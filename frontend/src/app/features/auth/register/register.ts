@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -13,7 +14,11 @@ import { RouterModule } from '@angular/router';
 export class RegisterComponent {
   registerForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.registerForm = this.fb.group({
       pseudo: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -23,8 +28,19 @@ export class RegisterComponent {
 
   onSubmit() {
     if (this.registerForm.valid) {
-      console.log('Registration attempt:', this.registerForm.value);
-      alert('Inscription (simulation) réussie ! Préparez-vous à vendre.');
+      const userData = this.registerForm.value;
+      
+      this.authService.register(userData).subscribe({
+        next: (response) => {
+          console.log('Réponse du serveur:', response);
+          alert('Inscription validée et stockée dans MySQL !');
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la création de compte', error);
+          alert('Erreur serveur (vérifiez que Docker et NestJS tournent).');
+        }
+      });
     } else {
       this.registerForm.markAllAsTouched();
     }
