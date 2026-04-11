@@ -1,0 +1,75 @@
+<div class="chat-wrapper fade-in">
+  <div class="chat-container">
+
+    <!-- Sidebar: Liste des conversations -->
+    <div class="chat-sidebar">
+      <div class="sidebar-header">
+        <h3>Boîte de réception</h3>
+      </div>
+      <div class="conversations-list">
+        <div 
+          class="conversation-item" 
+          *ngFor="let convo of conversations" 
+          [class.active]="convo.active"
+          (click)="selectConversation(convo.id)"
+        >
+          <div class="avatar-placeholder">
+             <span>{{ convo.partnerName.charAt(0) }}</span>
+          </div>
+          <div class="convo-info">
+            <div class="convo-top">
+              <span class="partner-name">{{ convo.partnerName }}</span>
+              <span class="unread-badge" *ngIf="convo.unreadCount > 0">{{ convo.unreadCount }}</span>
+            </div>
+            <span class="last-message">{{ convo.lastMessage }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chat Window: Messages -->
+    <div class="chat-window">
+      
+      <!-- Fenêtre de chat en-tête -->
+      <div class="chat-header">
+        <div class="avatar-placeholder small">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+           </svg>
+        </div>
+        <h4>Vue Discussion détaillée</h4>
+      </div>
+
+      <!-- Messages Flow -->
+      <div class="chat-messages" #scrollMe>
+        <div 
+          class="message-bubble" 
+          *ngFor="let msg of messages"
+          [class.sent]="msg.senderId === currentUser.id"
+          [class.received]="msg.senderId !== currentUser.id"
+        >
+          <span class="msg-text">{{ msg.text }}</span>
+          <span class="msg-time">{{ msg.timestamp }}</span>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <div class="chat-input-area">
+        <input 
+          type="text" 
+          placeholder="Écris ton message ici..." 
+          [(ngModel)]="newMessage" 
+          (keyup.enter)="sendMessage()"
+          class="message-input"
+        >
+        <button class="btn-primary send-btn capsule" (click)="sendMessage()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
