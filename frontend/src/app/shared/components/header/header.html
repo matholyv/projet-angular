@@ -28,8 +28,23 @@
       </button>
 
       <ng-container *ngIf="currentUser$ | async as user; else notLogged">
-        <span class="user-greeting">Bonjour, <strong>{{ $any(user).pseudo || $any(user).email?.split('@')[0] }}</strong></span>
-        <button class="nav-btn btn-ghost" (click)="logout()">Déconnexion</button>
+        <div class="user-profile-menu" (click)="toggleMenu()">
+          <!-- Photo de profil (Initiale) -->
+          <div class="avatar-circle" title="Mon Profil">
+            {{ ($any(user).pseudo || $any(user).email)[0].toUpperCase() }}
+          </div>
+          
+          <!-- Menu déroulant -->
+          <div class="dropdown-menu fade-in" *ngIf="isMenuOpen">
+            <div class="dropdown-header">
+              <strong>{{ $any(user).pseudo || $any(user).email.split('@')[0] }}</strong>
+              <span class="dropdown-email">{{ $any(user).email }}</span>
+            </div>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item">Paramètres du compte</button>
+            <button class="dropdown-item text-danger" (click)="logout()">Déconnexion</button>
+          </div>
+        </div>
       </ng-container>
 
       <ng-template #notLogged>

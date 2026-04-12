@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class HeaderComponent implements OnInit {
   isDarkMode = false;
+  isMenuOpen = false;
   currentUser$: any; // Observable pour l'affichage conditionnel
 
   constructor(
@@ -20,6 +21,10 @@ export class HeaderComponent implements OnInit {
     private router: Router
   ) {
     this.currentUser$ = this.authService.currentUser$;
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
   }
 
   ngOnInit() {
