@@ -29,7 +29,10 @@ export class AuthService {
     console.log('--- Tentative de connexion ---');
     console.log('Email:', credentials.email);
 
-    const user = await this.usersRepository.findOne({ where: { email: credentials.email } });
+    const user = await this.usersRepository.findOne({ 
+      where: { email: credentials.email },
+      select: ['id', 'email', 'password', 'pseudo', 'role', 'created_at'] // select:false par défaut dans l'entité
+    });
     
     if (!user) {
       console.log('-> Échec : Utilisateur introuvable en base de données.');
