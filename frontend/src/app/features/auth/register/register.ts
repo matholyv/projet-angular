@@ -38,7 +38,11 @@ export class RegisterComponent {
         },
         error: (error) => {
           console.error('Erreur lors de la création de compte', error);
-          alert('Erreur serveur (vérifiez que Docker et NestJS tournent).');
+          if (error.status === 409) {
+            alert('Cet email est déjà utilisé ! (Il est toujours dans la base de données MySQL)');
+          } else {
+            alert('Erreur serveur (vérifiez que Docker et NestJS tournent).');
+          }
         }
       });
     } else {
@@ -46,3 +50,4 @@ export class RegisterComponent {
     }
   }
 }
+
