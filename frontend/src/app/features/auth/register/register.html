@@ -5,6 +5,11 @@
       <p class="auth-subtitle">Créez votre compte en quelques secondes et commencez à chiner.</p>
     </div>
 
+    <!-- Bannière d'erreur interne -->
+    <div class="global-error-msg" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
       
       <div class="form-control">

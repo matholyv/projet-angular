@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+  errorMessage: string | null = null; // Propriété gérant l'affichage de l'erreur interne
 
   constructor(
     private fb: FormBuilder,
@@ -27,6 +28,7 @@ export class RegisterComponent {
   }
 
   onSubmit() {
+    this.errorMessage = null; // Reset à chaque essai
     if (this.registerForm.valid) {
       const userData = this.registerForm.value;
       
@@ -39,9 +41,9 @@ export class RegisterComponent {
         error: (error) => {
           console.error('Erreur lors de la création de compte', error);
           if (error.status === 409) {
-            alert('Cet email est déjà utilisé ! (Il est toujours dans la base de données MySQL)');
+            this.errorMessage = 'Cet email est déjà utilisé. Veuillez en choisir un autre ou vous connecter.';
           } else {
-            alert('Erreur serveur (vérifiez que Docker et NestJS tournent).');
+            this.errorMessage = 'Une erreur est survenue lors de l\'enregistrement. Veuillez réessayer plus tard.';
           }
         }
       });

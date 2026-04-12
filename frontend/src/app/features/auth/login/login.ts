@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  errorMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -26,19 +27,18 @@ export class LoginComponent {
   }
 
   onSubmit() {
+    this.errorMessage = null; // Reset
     if (this.loginForm.valid) {
       const credentials = this.loginForm.value;
       
       this.authService.login(credentials).subscribe({
         next: (response) => {
-          console.log('Connexion réussie, Token reçu:', response);
-          // On redirige vers la recherche ou le profil
+          console.log('Connexion réussie', response);
           this.router.navigate(['/search']);
         },
         error: (error) => {
           console.error('Erreur de connexion', error);
-          // On pourrait afficher un joli message d'erreur en rouge sous le formulaire à l'avenir
-          alert('Email ou mot de passe incorrect.');
+          this.errorMessage = 'Email ou mot de passe incorrect.';
         }
       });
     } else {

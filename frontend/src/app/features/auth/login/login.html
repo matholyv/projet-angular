@@ -5,6 +5,11 @@
       <p class="auth-subtitle">Connectez-vous pour retrouver vos pépites ou vendre vos articles.</p>
     </div>
 
+    <!-- Bannière d'erreur interne -->
+    <div class="global-error-msg" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-control">
         <label for="email">Email</label>
