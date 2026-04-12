@@ -1,7 +1,15 @@
-.form-container {
-  max-width: 800px;
+.ad-creation-wrapper {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1rem;
+  align-items: flex-start;
+}
+
+.form-container {
+  flex: 1;
+  max-width: 800px;
 }
 
 h2 {
@@ -16,7 +24,7 @@ h2 {
   gap: 1.5rem;
 }
 
-/* Sections (Boîtes Blanches) */
+/* Sections */
 .form-section {
   background-color: var(--bg-card);
   border-radius: var(--radius-md);
@@ -25,6 +33,13 @@ h2 {
 }
 
 /* --- Drag & Drop Zone --- */
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .drag-drop-zone {
   width: 100%;
   min-height: 200px;
@@ -39,6 +54,10 @@ h2 {
   transition: all 0.3s ease;
   background-color: transparent;
   color: var(--text-muted);
+}
+
+.drag-drop-zone.small-dropzone {
+  min-height: 120px;
 }
 
 .drag-drop-zone:hover, .drag-drop-zone.dragging {
@@ -63,9 +82,10 @@ h2 {
 .image-preview-wrapper {
   position: relative;
   width: 100%;
-  height: 250px;
+  aspect-ratio: 1;
   border-radius: var(--radius-sm);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .preview-img {
@@ -76,14 +96,14 @@ h2 {
 
 .btn-remove {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background-color: rgba(0,0,0,0.5);
+  top: 0.25rem;
+  right: 0.25rem;
+  background-color: rgba(0,0,0,0.6);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,6 +113,18 @@ h2 {
 
 .btn-remove:hover {
   background-color: var(--accent);
+}
+
+.main-photo-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 0.2rem;
 }
 
 /* --- Form Controls --- */
@@ -140,7 +172,6 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-/* Price Input Special */
 .price-input {
   position: relative;
   display: flex;
@@ -158,14 +189,12 @@ input:focus, select:focus, textarea:focus {
   pointer-events: none;
 }
 
-/* Errors */
 .error-msg {
   color: var(--accent);
   font-size: 0.8rem;
   margin-top: 0.4rem;
 }
 
-/* --- Validation --- */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -175,6 +204,44 @@ input:focus, select:focus, textarea:focus {
 .submit-btn {
   padding: 0.75rem 2rem;
   font-size: 1rem;
+}
+
+/* --- Aperçu Live --- */
+.live-preview-container {
+  width: 320px;
+  position: sticky;
+  top: 100px;
+}
+
+.live-preview-container h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+
+.preview-card-wrapper {
+  background-color: var(--bg-card);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  pointer-events: none; /* Empeche les clics dans la carte en aperçu */
+}
+
+.preview-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .ad-creation-wrapper {
+    flex-direction: column;
+  }
+  .live-preview-container {
+    width: 100%;
+    position: static;
+  }
 }
 
 @media (max-width: 600px) {
