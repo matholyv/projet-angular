@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -23,7 +23,7 @@ export class AdFormComponent {
     { id: 4, name: 'Loisirs & Jeux' }
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) {
     this.adForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.maxLength(500)]],
@@ -67,12 +67,14 @@ export class AdFormComponent {
     reader.readAsDataURL(file);
     reader.onload = () => {
       this.imagePreview = reader.result as string;
+      this.cdr.detectChanges(); // Force Angular à mettre à l'écran l'image
     };
   }
 
   removeImage() {
     this.selectedImage = null;
     this.imagePreview = null;
+    this.cdr.detectChanges();
   }
 
   // --- Soumission ---
