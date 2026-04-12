@@ -27,7 +27,15 @@
         </svg>
       </button>
 
-      <button class="nav-btn btn-ghost" routerLink="/login">S'inscrire | Se connecter</button>
+      <ng-container *ngIf="currentUser$ | async as user; else notLogged">
+        <span class="user-greeting">Bonjour, <strong>{{ user.pseudo || user.email.split('@')[0] }}</strong></span>
+        <button class="nav-btn btn-ghost" (click)="logout()">Déconnexion</button>
+      </ng-container>
+
+      <ng-template #notLogged>
+        <button class="nav-btn btn-ghost" routerLink="/login">S'inscrire | Se connecter</button>
+      </ng-template>
+
       <button class="nav-btn btn-primary capsule" routerLink="/publish">Vendre</button>
     </nav>
   </div>
