@@ -1,22 +1,19 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
-  // TODO: Remplacer par un vrai AuthService lors de l'intégration avec le Backend
-  private isAuthenticated = false;
-
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   canActivate(): boolean | UrlTree {
-    if (this.isAuthenticated) {
+    if (this.authService.isLoggedIn) {
       return true;
     }
     
     // Redirige vers la page de login si non connecté
-    // Optionnel : on pourrait afficher un message d'alerte ici
     return this.router.parseUrl('/login');
   }
 }
