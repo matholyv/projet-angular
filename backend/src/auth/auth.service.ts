@@ -16,20 +16,18 @@ export class AuthService {
     if (existing) throw new ConflictException('Email existe déjà');
     
     // Cryptage du mot de passe avec bcrypt
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+    if (userData.password) {
+      const saltRounds = 10;
+      userData.password = await bcrypt.hash(userData.password, saltRounds);
+    }
 
-    const newUser = this.usersRepository.create({
-      ...userData,
-      password: hashedPassword
-    });
-    return this.usersRepository.save(newUser);
+    const newUser = this.usersRepository.create(userData);
+    return await this.usersRepository.save(newUser);
   }
 
   async login(credentials: any): Promise<{ token: string }> {
     console.log('--- Tentative de connexion ---');
-    console.log('OEmail:', credentials.email);
-    console.log('OMot de passe reçu (longueur):', credentials.password?.length);
+    console.log('Email:', credentials.email);
 
     const user = await this.usersRepository.findOne({ where: { email: credentials.email } });
     
