@@ -6,10 +6,12 @@
 }
 
 .header-container {
-  max-width: 1280px;
+  max-width: 1200px; /* Même largeur que search-page-container */
+  width: 100%;
   margin: 0 auto;
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Pousse les éléments aux extrémités */
   gap: 1.5rem;
 }
 
