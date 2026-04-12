@@ -12,13 +12,15 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class HeaderComponent implements OnInit {
   isDarkMode = false;
-  currentUser$ = this.authService.currentUser$; // Observable pour l'affichage conditionnel
+  currentUser$: any; // Observable pour l'affichage conditionnel
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.currentUser$ = this.authService.currentUser$;
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {

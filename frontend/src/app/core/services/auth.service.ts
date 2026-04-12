@@ -13,10 +13,12 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Au chargement, on vérifie si un utilisateur était déjà connecté
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      this.currentUserSubject.next(JSON.parse(savedUser));
+    // Au chargement, on vérifie si un utilisateur était déjà connecté (protection SSR)
+    if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        this.currentUserSubject.next(JSON.parse(savedUser));
+      }
     }
   }
 
@@ -27,16 +29,19 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.API_URL}/login`, credentials).pipe(
       tap((response: any) => {
-        // Sauvegarde de l'utilisateur en local (ex: le token JWT etc.)
         const userData = { email: credentials.email, ...response };
-        localStorage.setItem('currentUser', JSON.stringify(userData));
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+        }
         this.currentUserSubject.next(userData);
       })
     );
   }
 
   logout() {
-    localStorage.removeItem('currentUser');
+    if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      localStorage.removeItem('currentUser');
+    }
     this.currentUserSubject.next(null);
   }
 
