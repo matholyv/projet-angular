@@ -15,6 +15,56 @@
   gap: 1.5rem;
 }
 
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.theme-switch {
+  width: 54px;
+  height: 28px;
+  background-color: #e2e8f0;
+  border-radius: 20px;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.theme-switch.active {
+  background-color: #4a5568;
+}
+
+.switch-handle {
+  width: 22px;
+  height: 22px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.theme-switch.active .switch-handle {
+  transform: translateX(26px);
+}
+
+.switch-icon {
+  width: 14px;
+  height: 14px;
+  color: #4a5568;
+}
+
+.theme-switch.active .switch-icon {
+  color: #f6e05e;
+}
+
 /* Logo Styling */
 .logo {
   font-size: 1.5rem;
@@ -62,12 +112,35 @@
 }
 
 .search-input {
-  border: none;
-  outline: none;
+  flex: 1;
   background: transparent;
-  width: 100%;
+  border: none;
   font-size: 0.95rem;
-  color: var(--text-main);
+  color: var(--text-color);
+  outline: none;
+}
+
+.search-btn {
+  background-color: #7d5fff !important; /* Violet Toulousain bien visible ! 🍇 */
+  color: #ffffff !important;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(125, 95, 255, 0.3);
+}
+
+.search-btn:hover {
+  background-color: #6a4ee0 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(125, 95, 255, 0.4);
+}
+
+.search-icon.clickable {
+  cursor: pointer;
 }
 
 .search-input::placeholder {
@@ -132,10 +205,138 @@
   }
 }
 
+@media (max-width: 480px) {
+  .header-container {
+    gap: 0.5rem;
+    padding: 0;
+  }
+  
+  .header-nav {
+    gap: 0.5rem;
+  }
+
+  .logo {
+    font-size: 1.2rem !important;
+  }
+  
+  .logo-main {
+    display: none !important;
+  }
+
+  .nav-action-vinted.primary-violet {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Cacher le texte des crédits sur tout petit écran, garder juste l'icône */
+  .credits-amount {
+    display: none !important;
+  }
+  .credits-display {
+    padding: 0.4rem !important;
+    border-radius: 50% !important;
+  }
+
+  .avatar-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .icon-nav-btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .user-profile-menu {
+    margin-right: 0;
+  }
+}
+
 .user-profile-menu {
   position: relative;
   cursor: pointer;
   margin-right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem; /* Pour espacer l'avatar et la flèche */
+}
+
+/* Nouvelles icônes d'action Vinted */
+.icon-nav-btn {
+  color: var(--text-muted);
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.icon-nav-btn:hover {
+  color: var(--primary);
+}
+
+.arrow-down {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+}
+
+/* Bouton Vendre Type Projet */
+.nav-action-vinted.primary-violet {
+  background-color: var(--primary); /* Retour au Violet d'origine 🍇 */
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Lien Admin */
+.admin-link {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 8px;
+  padding: 8px 8px !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1));
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  color: var(--primary) !important;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.admin-link:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.2));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(139, 92, 246, 0.1);
+}
+
+.nav-action-vinted.primary-violet:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Sélecteur de Langue */
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-weight: 500;
+}
+.lang-selector .arrow-down {
+  width: 12px;
+  height: 12px;
 }
 
 .avatar-circle {
@@ -214,4 +415,163 @@
 
 .text-danger:hover {
   background-color: #FEE2E2;
+}
+
+/* Affichage des Crédits */
+.credits-display {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border: 1px dashed var(--primary);
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.credits-display:hover {
+  background-color: var(--border-light);
+  transform: scale(1.05);
+}
+
+.wallet-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--primary);
+}
+
+.badge-notification {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #ef4444; /* Rouge vif */
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bg-card);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Notifications Dropdown */
+.notifications-dropdown {
+  width: 320px;
+  right: -80px; /* Centrer par rapport à l'icône environ */
+}
+
+@media (max-width: 768px) {
+  .notifications-dropdown {
+    width: 280px;
+    right: -20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notifications-dropdown {
+    position: fixed !important;
+    top: 60px !important;
+    right: 5% !important;
+    width: 90vw !important;
+    max-width: 350px !important;
+  }
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-text.small {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-text.small:hover {
+  text-decoration: underline;
+}
+
+.notifications-list {
+  max-height: 350px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-item {
+  display: flex;
+  padding: 12px 16px;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+  background-color: var(--border-light);
+}
+
+.notification-item.unread {
+  background-color: rgba(125, 95, 255, 0.05); /* Fond légèrement violet */
+}
+
+.notification-icon {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.notification-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.notification-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.empty-notifications {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }

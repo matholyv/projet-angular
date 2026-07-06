@@ -26,4 +26,13 @@ export class ChatController {
   ): Promise<ChatMessage[]> {
     return this.chatService.findConversation(adId, user1, user2);
   }
+
+  /**
+   * Récupérer la boîte de réception d'un utilisateur
+   * Ex: GET /chat/inbox?userId=abc
+   */
+  @Get('inbox')
+  async getInbox(@Query('userId') userId: string): Promise<any[]> {
+    return this.chatService.getUserConversations(userId);
+  }
 }

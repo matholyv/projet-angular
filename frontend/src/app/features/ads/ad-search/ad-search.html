@@ -1,28 +1,80 @@
 <div class="search-page-container">
-
-  <!-- En-tête Titre/Keywords -->
-  <div class="search-header">
-    <h1 *ngIf="!filterForm.value.keyword">Toutes les annonces</h1>
-    <h1 *ngIf="filterForm.value.keyword">Résultats pour "{{ filterForm.value.keyword }}"</h1>
-    <p>{{ searchResults.length }} résultats trouvés</p>
-  </div>
-
   <div class="search-layout">
-    
+    <!-- Bouton Filtres Mobile -->
+    <button class="mobile-filter-toggle btn-outline full-width mb-2" (click)="toggleMobileFilters()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: bottom; display: inline-block;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+      </svg>
+      {{ showMobileFilters ? 'Masquer les filtres' : 'Afficher les filtres' }}
+    </button>
+
     <!-- Sidebar : Filtres -->
-    <aside class="filters-sidebar">
+    <aside class="filters-sidebar" [class.mobile-hidden]="!showMobileFilters">
       <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="filters-form">
         
-        <div class="filter-group">
-          <label for="keyword">Chercher un article</label>
-          <input type="text" id="keyword" formControlName="keyword" placeholder="ex: Pull, Vase...">
-        </div>
-
         <div class="filter-group">
           <label for="category">Catégorie</label>
           <select id="category" formControlName="category">
             <option value="">Toutes</option>
-            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+            <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.name }}</option>
+          </select>
+        </div>
+
+        <!-- Filtre Taille -->
+        <div class="filter-group">
+          <label for="size">Taille</label>
+          <select id="size" formControlName="size">
+            <option value="">Toutes</option>
+            <option disabled>--- VÊTEMENTS ---</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option disabled>--- CHAUSSURES ---</option>
+            <option value="36">36</option>
+            <option value="37">37</option>
+            <option value="38">38</option>
+            <option value="39">39</option>
+            <option value="40">40</option>
+            <option value="41">41</option>
+            <option value="42">42</option>
+            <option value="43">43</option>
+            <option value="44">44</option>
+            <option value="45">45</option>
+            <option value="46">46</option>
+            <option value="47">47</option>
+            <option value="48">48</option>
+            <option value="49">49</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <!-- Filtre État -->
+        <div class="filter-group">
+          <label for="condition">État</label>
+          <select id="condition" formControlName="condition">
+            <option value="">Tous</option>
+            <option value="Neuf avec étiquette">Neuf avec étiquette</option>
+            <option value="Neuf sans étiquette">Neuf sans étiquette</option>
+            <option value="Très bon état">Très bon état</option>
+            <option value="Bon état">Bon état</option>
+            <option value="Satisfaisant">Satisfaisant</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="brand">Marque</label>
+          <input type="text" id="brand" formControlName="brand" placeholder="ex: Nike, Zara...">
+        </div>
+
+        <!-- Sort By -->
+        <div class="filter-group">
+          <label for="sort">Trier par</label>
+          <select id="sort" formControlName="sort">
+            <option value="newest">Plus récent</option>
+            <option value="price_asc">Prix croissant</option>
+            <option value="price_desc">Prix décroissant</option>
           </select>
         </div>
 
@@ -46,13 +98,15 @@
     <main class="results-grid">
       <app-ad-card 
         *ngFor="let ad of searchResults"
+        [id]="ad.id"
         [title]="ad.title"
         [price]="ad.price"
         [condition]="ad.condition"
+        [size]="ad.size"
+        [brand]="ad.brand"
         [imageUrl]="ad.imageUrl"
         [authorPseudo]="ad.authorPseudo"
       ></app-ad-card>
     </main>
-
   </div>
 </div>

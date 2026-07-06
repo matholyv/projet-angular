@@ -1,4 +1,5 @@
 {
+  /* FORCE RESTART - ANTIGRAVITY */
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",

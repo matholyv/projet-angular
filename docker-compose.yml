@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Base de données SQL (MySQL) pour les utilisateurs et annonces
+  # Base de données SQL (MySQL)
   mysql-db:
     image: mysql:8.0
     container_name: finders-mysql
@@ -16,7 +16,7 @@ services:
     volumes:
       - ./docker/mysql/data:/var/lib/mysql
 
-  # Base de données NoSQL (MongoDB) pour la messagerie chat
+  # Base de données NoSQL (MongoDB)
   mongodb:
     image: mongo:latest
     container_name: finders-mongodb
@@ -29,7 +29,46 @@ services:
     volumes:
       - ./docker/mongodb/data:/data/db
 
-  # Interface web (phpMyAdmin) pour voir facilement ce qu'il y a dans MySQL
+  # Backend NestJS
+  backend:
+    build: ./backend
+    container_name: finders-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=finders_user
+      - DB_PASSWORD=finders_password
+      - DB_NAME=finders_db
+      - MONGO_URI=mongodb://admin:admin_password@mongodb:27017/finders_chat?authSource=admin
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - NG_CLI_ANALYTICS=false
+    depends_on:
+      - mysql-db
+      - mongodb
+
+  # Frontend Angular
+  frontend:
+    build: ./frontend
+    container_name: finders-frontend
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - WDS_SOCKET_PORT=0
+    depends_on:
+      - backend
+
+  # phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: finders-phpmyadmin

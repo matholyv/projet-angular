@@ -1,0 +1,39 @@
+{
+  "/products": {
+    "target": "http://backend:3000",
+    "secure": false
+  },
+  "/auth": {
+    "target": "http://backend:3000",
+    "secure": false
+  },
+  "/chat": {
+    "target": "http://backend:3000",
+    "secure": false
+  },
+  "/transactions": {
+    "target": "http://backend:3000",
+    "secure": false
+  },
+  "/uploads": {
+    "target": "http://backend:3000",
+    "secure": false
+  },
+  "/socket.io": {
+    "target": "http://backend:3000",
+    "secure": false,
+    "ws": true
+  },
+  "/api/admin": {
+    "target": "http://backend:3000",
+    "secure": false
+  },
+  "/api/notifications": {
+    "target": "http://backend:3000",
+    "secure": false
+  },
+  "/reviews": {
+    "target": "http://backend:3000",
+    "secure": false
+  }
+}

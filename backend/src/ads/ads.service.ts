@@ -1,87 +1,119 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Ad } from './entities/ad.entity';
+import { Repository, Like, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { Product } from './entities/ad.entity';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class AdsService {
   constructor(
-    @InjectRepository(Ad)
-    private readonly adsRepository: Repository<Ad>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
-  /**
-   * Récupère toutes les annonces avec leurs relations (catégorie et auteur)
-   */
-  async findAll(): Promise<Ad[]> {
-    return this.adsRepository.find({
-      relations: ['category', 'user'],
-      order: { created_at: 'DESC' },
+  async create(data: any) {
+    const newProduct = this.productRepository.create({
+      title: data.title,
+      brand: data.brand || null,
+      description: data.description || "Pas de description",
+      price: data.price || 0,
+      condition: data.condition || 'BON ÉTAT',
+      size: data.size || 'M',
+      category: data.category || 'Vêtements',
+      image_data: data.image_data, 
+      ownerId: data.ownerId,
     });
+
+    return await this.productRepository.save(newProduct);
   }
 
-  /**
-   * Récupère une annonce spécifique par son ID
-   */
-  async findOne(id: string): Promise<Ad> {
-    const ad = await this.adsRepository.findOne({
-      where: { id },
-      relations: ['category', 'user'],
-    });
-
-    if (!ad) {
-      throw new NotFoundException(`L'annonce avec l'ID ${id} n'existe pas.`);
+  async findAll(query?: any) {
+    const where: any = {};
+    
+    // Par défaut, on n'affiche que les annonces disponibles (non vendues)
+    // Sauf si on filtre par propriétaire (pour voir son historique sur le profil)
+    if (!query?.ownerId) {
+      where.status = 'AVAILABLE';
+    }
+    
+    // Mot-clé (avec gestion basique du pluriel) 🧠
+    if (query?.keyword && query.keyword.trim() !== '') {
+      let kw = query.keyword.trim();
+      // Si le mot fait plus de 3 lettres et fini par "s", on le retire pour chercher la racine du mot
+      if (kw.length > 3 && kw.toLowerCase().endsWith('s')) {
+        kw = kw.slice(0, -1);
+      }
+      where.title = Like(`%${kw}%`);
+    }
+    
+    // Catégorie
+    if (query?.category && query.category.trim() !== '') {
+      where.category = query.category;
+    }
+    
+    // Prix
+    if (query?.minPrice || query?.maxPrice) {
+      const min = Number(query.minPrice) || 0;
+      const max = Number(query.maxPrice) || 999999;
+      where.price = Between(min, max);
     }
 
+    // TAILLE 🧥
+    if (query?.size && query.size !== '') {
+      where.size = query.size;
+    }
+
+    // ÉTAT ✨
+    if (query?.condition && query.condition.trim() !== '') {
+      where.condition = query.condition.trim();
+    }
+
+    // PROPRIÉTAIRE (Profil)
+    if (query?.ownerId && query.ownerId.trim() !== '') {
+      where.ownerId = query.ownerId;
+    }
+
+    // MARQUE
+    if (query?.brand && query.brand.trim() !== '') {
+      where.brand = Like(`%${query.brand.trim()}%`);
+    }
+
+    let order: any = { createdAt: 'DESC' };
+    if (query?.sort === 'price_asc') {
+      order = { price: 'ASC' };
+    } else if (query?.sort === 'price_desc') {
+      order = { price: 'DESC' };
+    }
+
+    const ads = await this.productRepository.find({
+      where,
+      relations: ['owner'],
+      order
+    });
+
+    console.log("TAILLES TROUVÉES EN BASE :", ads.map(a => a.size));
+    console.log("Résultats trouvés :", ads.length);
+
+    return ads;
+  }
+
+  async findOne(id: number) {
+    const ad = await this.productRepository.findOne({
+      where: { id },
+      relations: ['owner']
+    });
+    if (!ad) throw new Error("Annonce introuvable");
     return ad;
   }
 
-  /**
-   * Crée une nouvelle annonce
-   */
-  async create(adData: Partial<Ad>): Promise<Ad> {
-    const newAd = this.adsRepository.create(adData);
-    return this.adsRepository.save(newAd);
-  }
-
-  /**
-   * Met à jour une annonce
-   */
-  async update(id: string, adData: Partial<Ad>): Promise<Ad> {
+  async remove(id: number) {
     const ad = await this.findOne(id);
-    Object.assign(ad, adData);
-    return this.adsRepository.save(ad);
-  }
-
-  /**
-   * Filtrer les annonces par catégorie et prix
-   */
-  async findFiltered(categoryId?: number, minPrice?: number, maxPrice?: number): Promise<Ad[]> {
-    const query = this.adsRepository.createQueryBuilder('ad')
-      .leftJoinAndSelect('ad.category', 'category')
-      .leftJoinAndSelect('ad.user', 'user');
-
-    if (categoryId) {
-      query.andWhere('ad.categoryId = :categoryId', { categoryId });
+    if (!ad) throw new Error("Annonce introuvable");
+    if (ad.status === 'SOLD') {
+      throw new Error("Impossible de supprimer une annonce vendue (transaction en cours ou finalisée).");
     }
-    if (minPrice !== undefined) {
-      query.andWhere('ad.price >= :minPrice', { minPrice });
-    }
-    if (maxPrice !== undefined) {
-      query.andWhere('ad.price <= :maxPrice', { maxPrice });
-    }
-
-    query.orderBy('ad.created_at', 'DESC');
-    return query.getMany();
-  }
-
-  /**
-   * Supprime une annonce
-   */
-  async remove(id: string): Promise<void> {
-    const result = await this.adsRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Impossible de supprimer : l'annonce ${id} est introuvable.`);
-    }
+    return this.productRepository.remove(ad);
   }
 }

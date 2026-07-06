@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Ad } from './ad.entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('categories')
 export class Category {
@@ -8,10 +7,4 @@ export class Category {
 
   @Column()
   name: string;
-
-  @Column({ nullable: true })
-  icon: string;
-
-  @OneToMany(() => Ad, ad => ad.category)
-  ads: Ad[];
 }

@@ -36,6 +36,17 @@
         </div>
       </div>
 
+      <div class="form-control">
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="••••••••">
+        <div class="error-msg" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.hasError('required')">
+          Veuillez confirmer votre mot de passe.
+        </div>
+        <div class="error-msg" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.hasError('passwordMismatch')">
+          Les mots de passe ne correspondent pas.
+        </div>
+      </div>
+
       <button type="submit" class="btn-primary capsule full-width mt-1">S'inscrire</button>
     </form>
 

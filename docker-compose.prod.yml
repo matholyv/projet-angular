@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Base de données SQL (MySQL)
+  mysql-db:
+    image: mysql:8.0
+    container_name: finders-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: finders_db
+      MYSQL_USER: finders_user
+      MYSQL_PASSWORD: finders_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+
+  # Base de données NoSQL (MongoDB)
+  mongodb:
+    image: mongo:latest
+    container_name: finders-mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin_password
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker/mongodb/data:/data/db
+
+  # Backend NestJS (Production)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: finders-backend-prod
+    restart: always
+    volumes:
+      - ./backend/uploads:/usr/src/app/uploads
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=finders_user
+      - DB_PASSWORD=finders_password
+      - DB_NAME=finders_db
+      - MONGO_URI=mongodb://admin:admin_password@mongodb:27017/finders_chat?authSource=admin
+    depends_on:
+      - mysql-db
+      - mongodb
+
+  # Frontend Angular + Nginx (Production)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: finders-frontend-prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  # phpMyAdmin (facultatif mais utile pour administrer la DB)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: finders-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql-db
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql-db
+
+networks:
+  default:
+    name: finders-network

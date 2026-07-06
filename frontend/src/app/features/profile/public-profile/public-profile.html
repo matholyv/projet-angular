@@ -1,0 +1,73 @@
+<div class="page-container">
+  <div class="content-wrapper">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state fade-in">
+      <mat-progress-spinner mode="indeterminate" diameter="50" color="primary"></mat-progress-spinner>
+      <p>Chargement du profil...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && !publicProfile" class="empty-state fade-in">
+      <h3>Profil introuvable</h3>
+      <p>Cet utilisateur n'existe pas ou a supprimé son compte.</p>
+      <a routerLink="/" class="btn-primary-vinted">Retour à l'accueil</a>
+    </div>
+
+    <!-- Profile Content -->
+    <div *ngIf="!isLoading && publicProfile" class="profile-content fade-in">
+      
+      <!-- En-tête du profil -->
+      <div class="profile-header card">
+        <div class="avatar-large">
+          {{ publicProfile.pseudo.charAt(0).toUpperCase() }}
+        </div>
+        <div class="profile-info">
+          <h1 class="pseudo">{{ publicProfile.pseudo }}</h1>
+          
+          <div class="member-since">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Membre depuis le {{ publicProfile.created_at | date:'dd/MM/yyyy' }}
+          </div>
+          
+          <div class="description-box">
+            <h4>À propos</h4>
+            <p *ngIf="publicProfile.description" class="bio-text">{{ publicProfile.description }}</p>
+            <p *ngIf="!publicProfile.description" class="bio-text empty-bio">Cet utilisateur n'a pas encore rédigé de description.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section des annonces -->
+      <div class="user-ads-section">
+        <h2>Le dressing de {{ publicProfile.pseudo }} ({{ userAds.length }})</h2>
+        
+        <div *ngIf="userAds.length === 0" class="empty-state">
+          <p>Cet utilisateur n'a aucune annonce en ce moment.</p>
+        </div>
+
+        <div class="ads-grid" *ngIf="userAds.length > 0">
+          <div class="ad-card" *ngFor="let ad of userAds">
+            <div class="ad-img-container">
+              <img [src]="ad.imageUrl || 'assets/placeholder.jpg'" alt="{{ ad.title }}" class="ad-image">
+            </div>
+            <div class="ad-details">
+              <h3>{{ ad.title }}</h3>
+              <p class="price">{{ ad.price }} €</p>
+              <p class="condition">{{ ad.condition }}</p>
+            </div>
+            <div class="ad-actions">
+              <a [routerLink]="['/ad', ad.id]" class="btn-sm btn-outline">Voir l'annonce</a>
+              <span *ngIf="ad.status === 'SOLD'" class="badge-vendu-sm">Article Vendu</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

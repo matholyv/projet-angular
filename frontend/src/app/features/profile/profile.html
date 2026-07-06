@@ -1,0 +1,273 @@
+<div class="profile-container container">
+  <!-- En-tête du profil -->
+  <div class="profile-header glass-card">
+    <div class="avatar">
+      {{ currentUser?.pseudo?.charAt(0).toUpperCase() || 'U' }}
+    </div>
+    <div class="info">
+      <h1>{{ currentUser?.pseudo || 'Utilisateur' }}</h1>
+      <p class="email">{{ currentUser?.email }}</p>
+
+      <div class="user-rating mt-2" *ngIf="userReviews && userReviews.totalReviews > 0">
+        <span class="stars" style="font-size: 1.2rem;">
+          <span *ngFor="let s of [1,2,3,4,5]" [ngStyle]="{'color': s <= userReviews.averageRating ? '#f59e0b' : '#d1d5db'}">★</span>
+        </span>
+        <span class="rating-text" style="color: var(--text-muted); font-size: 0.9rem; margin-left: 8px; font-weight: 600;">
+          {{ userReviews.averageRating }} ({{ userReviews.totalReviews }} avis)
+        </span>
+      </div>
+      
+      <!-- Affichage rapide du solde -->
+      <div class="quick-balance">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="wallet-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18-3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6h18z" />
+        </svg>
+        <span>Portefeuille : <strong>{{ currentUser?.credits !== undefined ? (currentUser.credits | number:'1.2-2') : '0.00' }} €</strong></span>
+      </div>
+
+      <!-- Éditeur de Bio / Description -->
+      <div class="bio-editor">
+        <textarea 
+          [(ngModel)]="editDescription" 
+          placeholder="Ajoute une petite description de ton dressing pour donner confiance aux acheteurs..." 
+          class="bio-textarea"
+          rows="3"
+        ></textarea>
+        <button 
+          *ngIf="editDescription !== currentUser?.description" 
+          (click)="saveDescription()" 
+          class="btn-sm btn-outline capsule save-bio-btn"
+          [disabled]="isSavingBio"
+        >
+          {{ isSavingBio ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre d'onglets de navigation -->
+  <div class="profile-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'ads'" (click)="switchTab('ads')">
+      Mes Annonces ({{ myAds.length }})
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'wallet'" (click)="switchTab('wallet')">
+      Mon Portefeuille
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'transactions'" (click)="switchTab('transactions')">
+      Mes Transactions
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">
+      Avis reçus
+    </button>
+  </div>
+
+  <!-- CONTENU : MES ANNONCES -->
+  <div *ngIf="activeTab === 'ads'" class="tab-content fade-in">
+    <div *ngIf="isLoading" class="loading-state">
+      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" style="margin: 0 auto 15px;"></mat-progress-spinner>
+      <p>Chargement de vos annonces...</p>
+    </div>
+    
+    <div *ngIf="!isLoading && myAds.length === 0" class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="48" height="48" class="empty-icon">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+      <h3>Aucune annonce publiée</h3>
+      <p>Vous n'avez pas encore mis d'articles en vente.</p>
+      <a routerLink="/publish" class="btn-primary-vinted">Vends tes articles</a>
+    </div>
+
+    <div class="ads-grid" *ngIf="!isLoading && myAds.length > 0">
+      <div class="ad-card" *ngFor="let ad of myAds">
+        <div class="ad-img-container">
+          <img [src]="ad.imageUrl || 'assets/placeholder.jpg'" alt="{{ ad.title }}" class="ad-image">
+        </div>
+        <div class="ad-details">
+          <h3>{{ ad.title }}</h3>
+          <p class="price">{{ ad.price }} €</p>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">
+            <span class="condition">{{ ad.condition }}</span>
+            <span *ngIf="ad.brand" style="margin-left: 5px; font-weight: 500;">• {{ ad.brand }}</span>
+          </div>
+        </div>
+        <div class="ad-actions">
+          <a [routerLink]="['/ad', ad.id]" class="btn-sm btn-outline">Voir</a>
+          <button *ngIf="ad.status !== 'SOLD'" (click)="deleteAd(ad.id)" class="btn-sm btn-danger">Supprimer</button>
+          <span *ngIf="ad.status === 'SOLD'" class="badge-vendu-sm" style="font-size: 0.8rem; font-weight: 600; color: #16a34a; background: #dcfce7; padding: 4px 8px; border-radius: 12px;">Article Vendu</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENU : MON PORTEFEUILLE (WALLET & RECHARGE) -->
+  <div *ngIf="activeTab === 'wallet'" class="tab-content wallet-layout fade-in">
+    
+    <!-- Carte Portefeuille (Visuel) -->
+    <div class="wallet-card-container">
+      <div class="bank-card toulouse-violet-card">
+        <div class="card-header">
+          <span class="card-brand">2ndmain credits</span>
+          <span class="card-chip"></span>
+        </div>
+        <div class="card-balance">
+          <span class="balance-label">SOLDE DISPONIBLE</span>
+          <span class="balance-val">{{ currentUser?.credits !== undefined ? (currentUser.credits | number:'1.2-2') : '0.00' }} €</span>
+        </div>
+        <div class="card-holder">
+          <span class="holder-name">{{ currentUser?.pseudo || 'UTILISATEUR' }}</span>
+          <span class="holder-label">MEMBRE ACTIF</span>
+        </div>
+      </div>
+      
+      <!-- Solde en attente -->
+      <div class="pending-balance-card mt-3 p-3 rounded glass-card text-center" style="background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107;">
+        <p style="margin:0; font-size: 0.9rem; color: #ffc107;">⏳ Solde en attente</p>
+        <h3 style="margin: 5px 0 0; color: #ffc107;">{{ currentUser?.pending_credits !== undefined ? (currentUser.pending_credits | number:'1.2-2') : '0.00' }} €</h3>
+        <p style="font-size: 0.75rem; color: #aaa; margin-top: 5px;">Débloqué à la confirmation de réception</p>
+      </div>
+      
+      <div class="wallet-info-box">
+        <h4>💳 Qu'est-ce que le portefeuille ?</h4>
+        <p>Vos crédits vous permettent d'acheter des articles sur 2ndmain instantanément et sans utiliser de vraie carte bancaire.</p>
+        <p>Lors d'une vente, l'argent des acheteurs est immédiatement crédité sur ce solde.</p>
+      </div>
+    </div>
+
+    <!-- Formulaire de Recharge (Simulation Carte Bancaire) -->
+    <div class="refill-form-container glass-card">
+      <h3>Recharger mon portefeuille</h3>
+      <p class="refill-subtitle">Simulez un paiement par carte bancaire (aucune vraie transaction financière n'est effectuée).</p>
+      
+      <form (ngSubmit)="onSubmitRefill()" #refillForm="ngForm">
+        <!-- Choix du montant rapide -->
+        <div class="form-group">
+          <label>Montant à recharger</label>
+          <div class="quick-amounts">
+            <button type="button" class="amount-btn" [class.selected]="refillAmount === 10" (click)="refillAmount = 10">10 €</button>
+            <button type="button" class="amount-btn" [class.selected]="refillAmount === 20" (click)="refillAmount = 20">20 €</button>
+            <button type="button" class="amount-btn" [class.selected]="refillAmount === 50" (click)="refillAmount = 50">50 €</button>
+            <button type="button" class="amount-btn" [class.selected]="refillAmount === 100" (click)="refillAmount = 100">100 €</button>
+          </div>
+          
+          <div class="custom-amount-input mt-2">
+            <input type="number" name="customAmount" [(ngModel)]="refillAmount" placeholder="Autre montant" class="form-control" min="1" required>
+            <span class="euro-symbol">€</span>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Coordonnées bancaires fictives -->
+        <div class="payment-fields">
+          <h4>Coordonnées de paiement (Fictif)</h4>
+          
+          <div class="form-group">
+            <label>Nom sur la carte</label>
+            <input type="text" name="cardName" [(ngModel)]="cardName" placeholder="Jean Dupont" class="form-control" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Numéro de carte</label>
+            <input type="text" name="cardNumber" [(ngModel)]="cardNumber" placeholder="4970 1234 5678 9012" class="form-control" maxlength="19" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label>Date d'expiration</label>
+              <input type="text" name="cardExpiry" [(ngModel)]="cardExpiry" placeholder="MM/YY" class="form-control" maxlength="5" required>
+            </div>
+            
+            <div class="form-group col-half">
+              <label>Code de sécurité (CVV)</label>
+              <input type="text" name="cardCvv" [(ngModel)]="cardCvv" placeholder="123" class="form-control" maxlength="3" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-refill-cta" [disabled]="!refillForm.valid || isRefilling">
+          <span *ngIf="!isRefilling">Recharger {{ refillAmount }} € maintenant</span>
+          <span *ngIf="isRefilling" class="refill-loading">
+            <span class="mini-spinner"></span> Traitement en cours...
+          </span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- CONTENU : MES TRANSACTIONS -->
+  <div *ngIf="activeTab === 'transactions'" class="tab-content fade-in">
+    <!-- Le composant de transactions sera inséré ici, on peut faire un composant fils app-transactions -->
+    <app-transactions (reviewRequested)="openReviewModal($event)"></app-transactions>
+  </div>
+
+  <!-- CONTENU : AVIS -->
+  <div *ngIf="activeTab === 'reviews'" class="tab-content fade-in">
+    <div class="reviews-list" style="display: flex; flex-direction: column; gap: 15px;">
+      <div *ngIf="!userReviews || userReviews.reviews.length === 0" class="empty-state">
+        <p>Aucun avis reçu pour le moment.</p>
+      </div>
+      
+      <div class="review-card glass-card" *ngFor="let rev of userReviews?.reviews" style="padding: 15px; border-radius: 8px;">
+        <div class="review-stars" style="font-size: 1.1rem;">
+          <span *ngFor="let s of [1,2,3,4,5]" [ngStyle]="{'color': s <= rev.rating ? '#f59e0b' : '#d1d5db'}">★</span>
+        </div>
+        <p class="review-comment" style="margin: 10px 0; font-style: italic;">"{{ rev.comment }}"</p>
+        <span class="review-date" style="font-size: 0.8rem; color: var(--text-muted);">Publié le {{ rev.createdAt | date:'shortDate' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmation personnalisé (Suppression d'annonce) -->
+  <div class="modal-backdrop fade-in" *ngIf="showDeleteModal">
+    <div class="glass-card modal-card scale-in">
+      <div class="modal-header">
+        <h3>Supprimer l'annonce</h3>
+        <button class="close-btn" (click)="showDeleteModal = false">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer cette annonce ?</p>
+        <p class="warning-text-modal">⚠️ Cette action est définitive et l'annonce ne sera plus visible sur la plateforme.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline capsule" (click)="showDeleteModal = false">Annuler</button>
+        <button class="btn-danger capsule" (click)="executeDeleteAd()">🗑️ Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Avis (Détaché pour éviter le bug de CSS fixed) -->
+  <div class="modal-backdrop fade-in" *ngIf="showReviewModal">
+    <div class="glass-card modal-card scale-in">
+      <div class="modal-header">
+        <h3>Laisser un avis</h3>
+        <button class="close-btn" (click)="closeReviewModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 15px;">Note pour l'achat de : <strong>{{ reviewTargetAdTitle }}</strong></p>
+        
+        <div class="form-group">
+          <label>Note sur 5 étoiles</label>
+          <select [(ngModel)]="reviewData.rating" class="form-control">
+            <option [ngValue]="5">⭐⭐⭐⭐⭐ Parfait</option>
+            <option [ngValue]="4">⭐⭐⭐⭐ Très bien</option>
+            <option [ngValue]="3">⭐⭐⭐ Bien</option>
+            <option [ngValue]="2">⭐⭐ Moyen</option>
+            <option [ngValue]="1">⭐ À fuir</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+          <label>Votre commentaire</label>
+          <textarea [(ngModel)]="reviewData.comment" class="form-control" rows="4" placeholder="Vendeur sérieux, article conforme..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline capsule" (click)="closeReviewModal()">Annuler</button>
+        <button class="btn-primary-vinted capsule" (click)="submitReview()" [disabled]="isSubmittingReview">
+          {{ isSubmittingReview ? 'Envoi...' : 'Envoyer l\'avis' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

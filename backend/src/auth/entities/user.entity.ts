@@ -14,8 +14,23 @@ export class User {
   @Column()
   pseudo: string;
 
+  @Column('text', { nullable: true })
+  description: string;
+
   @Column({ type: 'enum', enum: ['USER', 'ADMIN'], default: 'USER' })
   role: string;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 100.00, transformer: {
+    to: (value: number) => value,
+    from: (value: string) => parseFloat(value)
+  }})
+  credits: number;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0.00, transformer: {
+    to: (value: number) => value,
+    from: (value: string) => parseFloat(value)
+  }})
+  pending_credits: number;
 
   @CreateDateColumn()
   created_at: Date;

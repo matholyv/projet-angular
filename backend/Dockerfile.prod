@@ -1,0 +1,28 @@
+# --- Étape 1 : Construction ---
+FROM node:20-alpine AS builder
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# --- Étape 2 : Runtime de Production ---
+FROM node:20-alpine AS runner
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+# Installe uniquement les dépendances de production
+RUN npm ci --only=production
+
+# Copie le code compilé depuis l'étape de construction
+COPY --from=builder /usr/src/app/dist ./dist
+
+# On expose le port 3000 pour NestJS
+EXPOSE 3000
+
+# Commande pour lancer le serveur en production
+CMD ["node", "dist/main"]

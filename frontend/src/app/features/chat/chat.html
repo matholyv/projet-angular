@@ -2,7 +2,7 @@
   <div class="chat-container">
 
     <!-- Sidebar: Liste des conversations -->
-    <div class="chat-sidebar">
+    <div class="chat-sidebar" [class.mobile-hidden]="activeConvo">
       <div class="sidebar-header">
         <h3>Boîte de réception</h3>
       </div>
@@ -11,14 +11,17 @@
           class="conversation-item" 
           *ngFor="let convo of conversations" 
           [class.active]="convo.active"
-          (click)="selectConversation(convo.id)"
+          (click)="selectConversation(convo)"
         >
-          <div class="avatar-placeholder">
-             <span>{{ convo.partnerName.charAt(0) }}</span>
+          <div class="avatar-placeholder" style="overflow: hidden;">
+             <img *ngIf="convo.adImage" [src]="convo.adImage" style="width: 100%; height: 100%; object-fit: cover;" />
+             <span *ngIf="!convo.adImage">{{ convo.partnerName ? (convo.partnerName + '').charAt(0).toUpperCase() : '?' }}</span>
           </div>
           <div class="convo-info">
             <div class="convo-top">
-              <span class="partner-name">{{ convo.partnerName }}</span>
+              <span class="partner-name">
+                {{ convo.partnerName }} <span style="font-size: 0.8em; opacity: 0.7; font-weight: normal;" *ngIf="convo.adTitle"> - {{ convo.adTitle }}</span>
+              </span>
               <span class="unread-badge" *ngIf="convo.unreadCount > 0">{{ convo.unreadCount }}</span>
             </div>
             <span class="last-message">{{ convo.lastMessage }}</span>
@@ -28,16 +31,72 @@
     </div>
 
     <!-- Main Chat Window: Messages -->
-    <div class="chat-window">
+    <div class="chat-window" *ngIf="activeConvo; else noConvo">
       
       <!-- Fenêtre de chat en-tête -->
-      <div class="chat-header">
-        <div class="avatar-placeholder small">
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-           </svg>
+      <div class="chat-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button class="mobile-back-btn" (click)="closeConversation()" style="background: none; border: none; padding: 0; display: flex; align-items: center;">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 24px; height: 24px; color: var(--primary);">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+             </svg>
+          </button>
+          <div class="avatar-placeholder small">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+             </svg>
+          </div>
+          <h4 style="margin: 0;">Discussion avec {{ activeConvo.partnerName }}</h4>
         </div>
-        <h4>Vue Discussion détaillée</h4>
+        <div class="chat-header-actions" *ngIf="activeConvo.partnerId">
+          <a [routerLink]="['/user', activeConvo.partnerId]" class="btn-sm btn-outline capsule">Voir le profil</a>
+        </div>
+      </div>
+
+      <!-- Bandeau d'Annonce Associé (Top of conversation) -->
+      <div class="chat-ad-banner" *ngIf="activeAd">
+        <div class="ad-banner-content">
+          <div class="ad-banner-img">
+            <img [src]="activeAd.imageUrl || 'assets/placeholder.jpg'" alt="{{ activeAd.title }}">
+          </div>
+          <div class="ad-banner-info">
+            <div class="ad-title-row">
+              <span class="ad-banner-title">{{ activeAd.title }}</span>
+              <span class="ad-banner-price">{{ activeAd.price }} €</span>
+            </div>
+            
+            <!-- Message de statut lié à la transaction -->
+            <div class="ad-banner-status" *ngIf="activeTransaction">
+              <span class="status-indicator" [ngClass]="activeTransaction.status.toLowerCase()">
+                <span class="dot"></span>
+                <ng-container *ngIf="activeTransaction.status === 'PENDING'">
+                  <span *ngIf="activeTransaction.buyerId === currentUser.id">Acheté - En attente de livraison</span>
+                  <span *ngIf="activeTransaction.sellerId === currentUser.id">Vendu - En attente de confirmation</span>
+                </ng-container>
+                <ng-container *ngIf="activeTransaction.status === 'COMPLETED'">
+                  Transaction finalisée
+                </ng-container>
+              </span>
+            </div>
+            <div class="ad-banner-status" *ngIf="!activeTransaction && activeAd.status === 'SOLD'">
+              <span class="status-indicator sold">
+                <span class="dot"></span> Article vendu
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ad-banner-actions">
+          <a [routerLink]="['/ad', activeAd.id]" class="btn-sm btn-outline capsule">Détails de l'article</a>
+          <a *ngIf="activeTransaction" [routerLink]="['/transaction', activeTransaction.id]" class="btn-sm btn-primary-vinted capsule">
+            📦 Suivre la transaction
+          </a>
+          <a *ngIf="!activeTransaction && activeAd.status !== 'SOLD' && activeAd.ownerId !== currentUser.id" 
+             [routerLink]="['/ad', activeAd.id]" 
+             class="btn-sm btn-primary-vinted capsule">
+            💳 Acheter
+          </a>
+        </div>
       </div>
 
       <!-- Messages Flow -->
@@ -45,8 +104,9 @@
         <div 
           class="message-bubble" 
           *ngFor="let msg of messages"
-          [class.sent]="msg.senderId === currentUser.id"
-          [class.received]="msg.senderId !== currentUser.id"
+          [class.sent]="currentUser && msg.senderId === currentUser.id"
+          [class.received]="currentUser && msg.senderId !== currentUser.id"
+          [class.official]="msg.text.startsWith('Automatique :')"
         >
           <span class="msg-text">{{ msg.text }}</span>
           <span class="msg-time">{{ msg.timestamp }}</span>
@@ -70,6 +130,17 @@
       </div>
 
     </div>
+
+    <!-- État vide (Aucune conversation sélectionnée) -->
+    <ng-template #noConvo>
+      <div class="chat-window" style="display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted);">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 64px; height: 64px; margin-bottom: 1rem; opacity: 0.5;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+        </svg>
+        <h3>Vos messages</h3>
+        <p>Sélectionnez une conversation ou contactez un vendeur depuis une annonce.</p>
+      </div>
+    </ng-template>
 
   </div>
 </div>

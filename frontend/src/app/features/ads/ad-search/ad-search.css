@@ -1,7 +1,8 @@
 .search-page-container {
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: 80vh; /* On force la page à être grande pour pousser le footer ! 🚀 */
 }
 
 .search-header {
@@ -58,9 +59,14 @@
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
-  background-color: transparent;
+  background-color: var(--bg-card); /* On utilise le fond de la carte */
   color: var(--text-main);
   font-size: 0.95rem;
+}
+
+.filter-group select option {
+  background-color: var(--bg-card);
+  color: var(--text-main);
 }
 
 .filter-group input:focus,
@@ -109,14 +115,38 @@
   gap: 1.5rem;
 }
 
+/* Bouton Toggle Mobile */
+.mobile-filter-toggle {
+  display: none;
+  font-weight: bold;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  background: rgba(125, 95, 255, 0.05);
+}
+
+.mb-2 {
+  margin-bottom: 1rem;
+}
+
 /* Responsive */
 @media (max-width: 800px) {
   .search-layout {
     flex-direction: column;
   }
   
+  .mobile-filter-toggle {
+    display: block; /* On affiche le bouton sur mobile */
+  }
+
   .filters-sidebar {
     width: 100%;
     position: static;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .filters-sidebar.mobile-hidden {
+    display: none;
   }
 }

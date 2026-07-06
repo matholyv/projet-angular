@@ -1,66 +1,146 @@
-<div class="admin-wrapper fade-in">
+<div class="admin-container fade-in">
+  
   <div class="admin-header">
-    <h1>Panneau d'Administration</h1>
-    <p>Bienvenue dans l'espace de modération de 2ndmain.</p>
+    <h1 class="admin-title">Panel d'Administration</h1>
+    <p class="admin-subtitle">Gérez la plateforme, vos utilisateurs et suivez vos statistiques</p>
   </div>
 
-  <!-- Statistiques Haut de Page -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <span class="stat-title">Utilisateurs inscrits</span>
-      <span class="stat-value">{{ stats.totalUsers }}</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-title">Annonces actives</span>
-      <span class="stat-value">{{ stats.totalAds }}</span>
-    </div>
-    <div class="stat-card alert-card">
-      <span class="stat-title">Annonces signalées</span>
-      <span class="stat-value">{{ stats.reportedAds }}</span>
-    </div>
+  <div *ngIf="isLoading" style="text-align: center; margin: 40px 0;">
+    <p>Chargement des données administrateur...</p>
   </div>
 
-  <!-- Tableau de Modération -->
-  <div class="moderation-panel">
-    <h2>Annonces Nécessitant une Modération</h2>
+  <ng-container *ngIf="!isLoading">
+    <!-- Section Statistiques -->
+    <div class="stats-grid" *ngIf="stats">
+      <div class="stat-card">
+        <div class="stat-icon users">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <div class="stat-info">
+          <h3>Total Utilisateurs</h3>
+          <span class="stat-value">{{ stats.totalUsers }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon ads">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <div class="stat-info">
+          <h3>Total Annonces</h3>
+          <span class="stat-value">{{ stats.totalAds }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon sales">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="stat-info">
+          <h3>Ventes Terminées</h3>
+          <span class="stat-value">{{ stats.totalSales }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon revenue">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="stat-info">
+          <h3>Bénéfices (Frais)</h3>
+          <span class="stat-value" style="color: #10b981;">{{ stats.totalRevenue | number:'1.2-2' }} €</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paramètres de la plateforme -->
+  <div class="section-block settings-section">
+    <div class="section-header">
+      <h2 class="section-title">Paramètres de la Plateforme</h2>
+      <p class="section-subtitle">Ajustez les frais de protection acheteur appliqués sur chaque transaction.</p>
+    </div>
     
-    <div class="table-container" *ngIf="reportedAdsList.length > 0">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Titre de l'annonce</th>
-            <th>Vendeur</th>
-            <th>Signalement</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ad of reportedAdsList">
-            <td>#{{ ad.id }}</td>
-            <td class="ad-title-cell">{{ ad.title }}</td>
-            <td>{{ ad.author }}</td>
-            <td><span class="badge warning">{{ ad.reason }}</span></td>
-            <td>{{ ad.date | date:'shortDate':'':'fr-FR' }}</td>
-            <td class="actions-cell">
-              <button class="btn-sm btn-ghost" (click)="ignoreReport(ad.id)">Ignorer</button>
-              <button class="btn-sm btn-danger" (click)="deleteAd(ad.id)">Supprimer</button>
-              <button class="btn-sm btn-ban" (click)="banUser(ad.author)">Bannir Vendeur</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="settings-form">
+      <div class="setting-group">
+        <label>Pourcentage (%)</label>
+        <div class="input-wrapper">
+          <input type="number" [(ngModel)]="feePercentage" min="0" max="100" step="0.1" class="custom-input">
+          <span class="input-suffix">%</span>
+        </div>
+      </div>
+      
+      <div class="setting-group">
+        <label>Montant Fixe (€)</label>
+        <div class="input-wrapper">
+          <input type="number" [(ngModel)]="feeFixed" min="0" step="0.1" class="custom-input">
+          <span class="input-suffix">€</span>
+        </div>
+      </div>
 
-    <!-- Si plus aucun signalement -->
-    <div class="empty-state" *ngIf="reportedAdsList.length === 0">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <h3>Super, tout est propre !</h3>
-      <p>Aucun signalement en attente, la communauté est saine.</p>
+      <button class="btn-save" (click)="saveSettings()" [disabled]="isSavingSettings">
+        {{ isSavingSettings ? 'Sauvegarde...' : 'Sauvegarder' }}
+      </button>
     </div>
-
   </div>
+
+  <!-- Gestion des Utilisateurs et Fonds -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2 class="section-title">Gestion des Utilisateurs et Fonds</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Ici vous pouvez ajuster manuellement le portefeuille de chaque utilisateur en ajoutant ou en retirant des crédits (Saisissez un nombre positif pour créditer ou négatif pour débiter, ex: 50, -20).</p>
+      </div>
+      
+      <div class="reports-list">
+        
+        <div class="report-item" *ngFor="let user of users">
+          <div class="report-details" style="flex: 2;">
+            <h4 class="report-ad-title">{{ user.pseudo }} <span *ngIf="user.role === 'ADMIN'" style="color: #8b5cf6; font-size: 0.8rem; border: 1px solid #8b5cf6; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">ADMIN</span></h4>
+            <p class="report-author">{{ user.email }}</p>
+            <p class="report-reason">Inscrit le : {{ user.created_at | date:'dd/MM/yyyy' }}</p>
+          </div>
+          
+          <div class="user-wallet" style="flex: 1; text-align: center;">
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Solde actuel</p>
+            <h3 style="margin: 0; color: var(--primary);">{{ user.credits | number:'1.2-2' }} €</h3>
+          </div>
+
+          <div class="report-actions" style="flex: 2; justify-content: flex-end;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <div class="input-wrapper" style="width: 140px;">
+                <input 
+                  type="number" 
+                  [(ngModel)]="creditAdjustments[user.id]" 
+                  placeholder="Montant (+/-)" 
+                  class="custom-input"
+                  style="width: 100%; padding-right: 30px;"
+                />
+                <span class="input-suffix">€</span>
+              </div>
+              <button 
+                class="btn-save" 
+                (click)="updateCredits(user)"
+                [disabled]="isUpdating[user.id] || !creditAdjustments[user.id]"
+                style="height: auto; padding: 0.6rem 1.2rem; font-size: 0.9rem; white-space: nowrap;"
+              >
+                {{ isUpdating[user.id] ? 'Mise à jour...' : 'Appliquer' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="users.length === 0">
+          <p>Aucun utilisateur trouvé.</p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
 </div>

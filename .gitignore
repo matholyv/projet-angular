@@ -28,3 +28,15 @@ todoplan.md
 # Volumes Docker & Data
 docker/mysql/data/
 docker/mongodb/data/
+
+# Dossier d'exam
+dossier projet/
+
+# Fichiers de documentation & rédactionnels
+README.md
+cahier_des_charges.md
+charte_graphique.md
+documentation/
+
+# Uploads utilisateurs
+backend/uploads/

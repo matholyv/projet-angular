@@ -1,0 +1,64 @@
+<div *ngIf="isLoading" class="loading-state">
+  <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" style="margin: 0 auto 15px;"></mat-progress-spinner>
+  <p>Chargement de vos transactions...</p>
+</div>
+
+<div *ngIf="!isLoading">
+  <div class="transactions-section">
+    <h3>🛒 Mes Achats</h3>
+    <div *ngIf="purchases.length === 0" class="empty-state-small">
+      <p>Vous n'avez effectué aucun achat.</p>
+    </div>
+    
+    <div class="transaction-list">
+      <div class="transaction-card" *ngFor="let t of purchases">
+        <div class="transaction-header">
+          <span class="status-badge" [ngClass]="t.status.toLowerCase()">{{ t.status === 'PENDING' ? 'En attente de réception' : 'Terminé' }}</span>
+          <span class="date">{{ t.createdAt | date:'short' }}</span>
+        </div>
+        <div class="transaction-body">
+          <div class="product-info">
+            <strong>{{ t.product?.title || 'Produit' }}</strong>
+            <p>Vendeur: {{ t.seller?.pseudo }}</p>
+          </div>
+          <div class="price-info">
+            <span class="price">{{ t.price }} €</span>
+          </div>
+        </div>
+        <div class="transaction-footer" style="gap: 10px;">
+          <button *ngIf="t.status === 'COMPLETED' && !t.buyerReviewed" class="btn-sm btn-outline" style="color: #f59e0b; border-color: #f59e0b;" (click)="requestReview(t, false)">Laisser un avis ⭐</button>
+          <a [routerLink]="['/transaction', t.id]" class="btn-sm btn-outline">Voir les détails</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="transactions-section mt-4">
+    <h3>💰 Mes Ventes</h3>
+    <div *ngIf="sales.length === 0" class="empty-state-small">
+      <p>Vous n'avez effectué aucune vente.</p>
+    </div>
+    
+    <div class="transaction-list">
+      <div class="transaction-card" *ngFor="let t of sales">
+        <div class="transaction-header">
+          <span class="status-badge" [ngClass]="t.status.toLowerCase()">{{ t.status === 'PENDING' ? 'En attente de réception' : 'Terminé' }}</span>
+          <span class="date">{{ t.createdAt | date:'short' }}</span>
+        </div>
+        <div class="transaction-body">
+          <div class="product-info">
+            <strong>{{ t.product?.title || 'Produit' }}</strong>
+            <p>Acheteur: {{ t.buyer?.pseudo }}</p>
+          </div>
+          <div class="price-info">
+            <span class="price">+{{ t.price }} €</span>
+          </div>
+        </div>
+        <div class="transaction-footer" style="gap: 10px;">
+          <button *ngIf="t.status === 'COMPLETED' && !t.sellerReviewed" class="btn-sm btn-outline" style="color: #f59e0b; border-color: #f59e0b;" (click)="requestReview(t, true)">Laisser un avis ⭐</button>
+          <a [routerLink]="['/transaction', t.id]" class="btn-sm btn-outline">Voir les détails</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

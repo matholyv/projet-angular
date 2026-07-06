@@ -1,3 +1,5 @@
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
 /* --- DESIGN SYSTEM - 2ndmain --- */
 :root {
   /* Colors - Toulouse Violet (Primary) */
@@ -88,7 +90,7 @@ h1, h2, h3, h4 {
 /* Animations (Liquid & Smooth) */
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
 }
 
 .fade-in {

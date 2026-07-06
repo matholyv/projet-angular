@@ -8,19 +8,21 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { AdsModule } from './ads/ads.module';
 import { ChatModule } from './chat/chat.module';
+import { AdminModule } from './admin/admin.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 import { User } from './auth/entities/user.entity';
-import { Ad } from './ads/entities/ad.entity';
-import { Category } from './ads/entities/category.entity';
+import { Product } from './ads/entities/ad.entity'; // On récupère notre nouveau jouet !
+import { TransactionsModule } from './transactions/transactions.module';
+import { Transaction } from './transactions/entities/transaction.entity';
+import { Setting } from './admin/entities/setting.entity';
+import { Notification } from './notifications/entities/notification.entity';
 
 @Module({
   imports: [
-    // Configuration des variables d'environnement
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
 
-    // Connexion à la base de données SQL (MySQL)
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -30,13 +32,12 @@ import { Category } from './ads/entities/category.entity';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Ad, Category],
-        synchronize: true, // Désactiver en production !
+        entities: [User, Product, Transaction, Setting, Notification],
+        synchronize: true, 
       }),
       inject: [ConfigService],
     }),
 
-    // Connexion à la base de données NoSQL (MongoDB)
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -48,6 +49,10 @@ import { Category } from './ads/entities/category.entity';
     AuthModule,
     AdsModule,
     ChatModule,
+    TransactionsModule,
+    AdminModule,
+    ReviewsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -12,6 +12,16 @@
           <p>Aucune photo</p>
         </div>
       </div>
+      
+      <!-- Galerie de miniatures -->
+      <div class="image-gallery" *ngIf="ad.images && ad.images.length > 1" style="display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 5px;">
+        <img *ngFor="let img of ad.images; let i = index" 
+             [src]="img" 
+             (click)="setMainImage(i)"
+             [style.border]="currentImageIndex === i ? '2px solid var(--primary, #6366f1)' : '2px solid transparent'"
+             [style.opacity]="currentImageIndex === i ? '1' : '0.6'"
+             style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      </div>
     </div>
 
     <!-- Partie Droite : Infos & Actions -->
@@ -22,16 +32,32 @@
         <h1 class="ad-title">{{ ad.title }}</h1>
         <h2 class="ad-price">{{ ad.price }} €</h2>
         
+        <div *ngIf="ad.status === 'SOLD'" class="sold-badge mt-2" style="display:inline-block; padding:0.5rem 1rem; background-color: var(--danger-color, #e74c3c); color: white; border-radius: 4px; font-weight: bold;">
+          VENDU
+        </div>
+        
         <hr class="divider">
 
         <div class="ad-attributes">
-          <div class="detail-row">
+          <div class="detail-row" *ngIf="ad.category">
             <span class="detail-label">Catégorie</span>
-            <span class="detail-value">{{ ad.categoryName }}</span>
+            <span class="detail-value">{{ ad.category }}</span>
+          </div>
+          <div class="detail-row" *ngIf="ad.brand">
+            <span class="detail-label">Marque</span>
+            <span class="detail-value">{{ ad.brand }}</span>
+          </div>
+          <div class="detail-row" *ngIf="ad.size">
+            <span class="detail-label">Taille</span>
+            <span class="detail-value">{{ ad.size }}</span>
+          </div>
+          <div class="detail-row" *ngIf="ad.condition">
+            <span class="detail-label">État</span>
+            <span class="detail-value">{{ ad.condition }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Publié le</span>
-            <span class="detail-value">{{ ad.createdAt | date:'longDate':'':'fr-FR' }}</span>
+            <span class="detail-value">{{ ad.createdAt | date:'mediumDate' }}</span>
           </div>
         </div>
 
@@ -54,13 +80,82 @@
           </div>
         </div>
         
-        <!-- Call To Action (Messagerie) -->
-        <button class="btn-primary capsule full-width mt-2" (click)="onContactSeller()">
+        <button *ngIf="!isOwner && ad.status !== 'SOLD'" class="btn-buy capsule full-width mt-2" (click)="openBuyModal()">
+          Acheter
+        </button>
+
+        <button *ngIf="!isOwner" class="btn-outline capsule full-width mt-2" (click)="onContactSeller()">
           Contacter le vendeur
         </button>
+        
+        <div *ngIf="isOwner" class="owner-msg mt-2" style="text-align: center; color: var(--primary); font-weight: 500; font-size: 0.9rem; padding: 10px 0;">
+          C'est votre annonce
+        </div>
       </div>
 
     </div>
 
+  </div>
+</div>
+
+<!-- Modal d'achat -->
+<div class="modal-overlay" *ngIf="showBuyModal">
+  <div class="modal-content glass-card">
+    <div class="modal-header">
+      <h2>Récapitulatif de paiement</h2>
+      <button class="btn-close" (click)="closeBuyModal()">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="checkout-item">
+        <span>Article : {{ ad?.title }}</span>
+        <span>{{ ad?.price | number:'1.2-2' }} €</span>
+      </div>
+      <div class="checkout-item">
+        <span>Frais de protection acheteur ({{ transactionPercent * 100 }}% <span *ngIf="transactionFee > 0">+ {{ transactionFee | number:'1.2-2' }} €</span>)</span>
+        <span>{{ calculateFee | number:'1.2-2' }} €</span>
+      </div>
+      <hr>
+      <div class="checkout-item total">
+        <strong>Total à payer</strong>
+        <strong>{{ calculateTotal | number:'1.2-2' }} €</strong>
+      </div>
+
+      <div class="wallet-balance mt-3 p-3 rounded" style="background: rgba(40,167,69,0.1); border-left: 4px solid #28a745;">
+        <p style="margin:0; font-size: 0.9rem;">Votre solde actuel : <strong>{{ currentUser?.credits | number:'1.2-2' }} €</strong></p>
+        <p *ngIf="currentUser?.credits < calculateTotal" style="color: #e74c3c; margin-top:5px; font-size: 0.85rem;">
+          Solde insuffisant. Vous allez être redirigé vers votre portefeuille.
+        </p>
+      </div>
+
+      <div class="terms-checkbox mt-3">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+          <input type="checkbox" [(ngModel)]="acceptTerms" style="margin-top: 3px;">
+          <span>Je confirme l'achat de cet article et j'accepte d'être débité de mon solde.</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-outline" (click)="closeBuyModal()">Annuler</button>
+      <button class="btn-primary" (click)="confirmBuy()" [disabled]="isBuying || !acceptTerms">
+        {{ isBuying ? 'Paiement en cours...' : 'Confirmer le paiement' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de succès -->
+<div class="modal-overlay" *ngIf="showSuccessModal">
+  <div class="modal-content glass-card" style="text-align: center; padding: 40px 20px;">
+    <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
+    <h2 style="color: #10b981; margin-bottom: 10px;">Achat réussi !</h2>
+    <p style="color: var(--text-muted); margin-bottom: 30px;">
+      Félicitations, vous venez d'acheter cet article !<br>
+      Un message a été automatiquement envoyé au vendeur.
+    </p>
+    <button class="btn-primary capsule" style="margin-top: 15px; padding: 12px 30px; font-size: 1.05rem;" (click)="goToTransaction()">
+      Suivre ma commande 📦
+    </button>
   </div>
 </div>

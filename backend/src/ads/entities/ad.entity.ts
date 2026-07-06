@@ -1,14 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
-import { Category } from './category.entity';
 
-@Entity('ads')
-export class Ad {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+@Entity('products') // Nouveau nom de table pour la sécurité !
+export class Product {
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   title: string;
+
+  @Column({ nullable: true })
+  brand: string;
 
   @Column('text')
   description: string;
@@ -16,23 +18,31 @@ export class Ad {
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @Column({ nullable: true })
-  image_url: string;
+  @Column({ type: 'enum', enum: ['AVAILABLE', 'SOLD'], default: 'AVAILABLE' })
+  status: string;
 
-  @Column()
-  userId: string;
+  @Column({ default: 'BON ÉTAT' })
+  condition: string;
+
+  @Column({ nullable: true })
+  size: string;
+
+  @Column({ nullable: true })
+  category: string;
+
+  @Column('longtext', { nullable: true })
+  image_data: string; // On stocke l'image ici pour le test
+
+  @Column({ nullable: true })
+  ownerId: string; // On rajoute la colonne EN DUR ! ✨🚀
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @Column()
-  categoryId: number;
-
-  @ManyToOne(() => Category, category => category.ads)
-  @JoinColumn({ name: 'categoryId' })
-  category: Category;
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

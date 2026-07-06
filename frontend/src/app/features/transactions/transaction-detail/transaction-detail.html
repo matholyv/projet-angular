@@ -1,0 +1,72 @@
+<div class="container transaction-detail-container">
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" style="margin: 30px auto;"></mat-progress-spinner>
+  </div>
+
+  <div *ngIf="!isLoading && !transaction" class="error-state">
+    <h3>Transaction introuvable</h3>
+    <a routerLink="/profile" class="btn-outline">Retour au profil</a>
+  </div>
+
+  <div *ngIf="!isLoading && transaction" class="glass-card detail-card">
+    <div class="detail-header">
+      <h2>Détails de la transaction</h2>
+      <span class="status-badge" [ngClass]="transaction.status.toLowerCase()">
+        {{ transaction.status === 'PENDING' ? 'En attente de réception' : 'Terminé' }}
+      </span>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-block">
+        <h4>Article</h4>
+        <h3 style="margin-top:0">{{ transaction.product?.title }}</h3>
+        <a [routerLink]="['/ad', transaction.product?.id]" class="btn-outline capsule" style="display: inline-block; padding: 6px 14px; font-size: 0.85rem; margin-top: 10px; text-decoration: none;">Voir l'annonce</a>
+      </div>
+
+      <div class="detail-block">
+        <h4>Informations</h4>
+        <p>Acheteur : {{ transaction.buyer?.pseudo }}</p>
+        <p>Vendeur : {{ transaction.seller?.pseudo }}</p>
+        <p>Date : {{ transaction.createdAt | date:'medium' }}</p>
+      </div>
+
+      <div class="detail-block price-block">
+        <h4>Paiement</h4>
+        <p>Prix de l'article : {{ transaction.price }} €</p>
+        <p>Frais acheteur : {{ transaction.fee }} €</p>
+        <hr>
+        <p class="total">Total : {{ (transaction.price * 1) + (transaction.fee * 1) | number:'1.2-2' }} €</p>
+      </div>
+    </div>
+
+    <!-- Action pour l'acheteur -->
+    <div class="action-section" *ngIf="transaction.buyerId === currentUserId && transaction.status === 'PENDING'">
+      <p class="warning-text">L'argent est actuellement conservé par la plateforme. Confirmez la réception pour payer le vendeur.</p>
+      <button class="btn-primary-vinted btn-large" (click)="confirmReception()" [disabled]="isConfirming">
+        {{ isConfirming ? 'Confirmation...' : '📦 J\'ai reçu le colis (Valider)' }}
+      </button>
+    </div>
+
+    <div class="action-section" *ngIf="transaction.sellerId === currentUserId && transaction.status === 'PENDING'">
+      <p class="info-text">En attente de la confirmation de réception par l'acheteur pour débloquer vos {{ transaction.price }} €.</p>
+    </div>
+  </div>
+
+  <!-- Modal de confirmation personnalisé (Aesthetic) -->
+  <div class="modal-backdrop fade-in" *ngIf="showConfirmModal">
+    <div class="glass-card modal-card scale-in">
+      <div class="modal-header">
+        <h3>Confirmer la réception</h3>
+        <button class="close-btn" (click)="showConfirmModal = false">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir confirmer la réception ?</p>
+        <p class="warning-text-modal">⚠️ L'argent sera transféré au vendeur de façon définitive et irréversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline capsule" (click)="showConfirmModal = false">Annuler</button>
+        <button class="btn-primary-vinted capsule" (click)="executeConfirmReception()">📦 Confirmer la réception</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -128,6 +128,8 @@
   display: flex;
   flex-direction: column;
   background-color: var(--bg-card);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .chat-header {
@@ -178,6 +180,22 @@
   background-color: var(--primary);
   color: white;
   border-bottom-right-radius: 4px;
+}
+
+.message-bubble.official {
+  background-color: rgba(16, 185, 129, 0.1); /* light green */
+  color: #10b981; /* emerald-500 */
+  border: 1px solid #10b981;
+  font-weight: 500;
+  border-radius: 8px;
+  align-self: center;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: none;
+}
+
+.message-bubble.official .msg-time {
+  align-self: center;
 }
 
 .msg-text {
@@ -237,14 +255,223 @@
   height: 20px;
 }
 
+.mobile-back-btn {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .chat-sidebar {
     position: absolute;
     z-index: 10;
     height: 100%;
-    transform: translateX(-100%);
-    transition: transform 0.3s;
+    transform: translateX(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%; /* prend tout l'écran sur mobile */
   }
+  
+  .chat-sidebar.mobile-hidden {
+    transform: translateX(-100%);
+  }
+
+  .mobile-back-btn {
+    display: block;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+
+  /* Header du chat sur mobile */
+  .chat-header {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .chat-header h4 {
+    font-size: 0.95rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  .chat-header .btn-sm {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Bandeau de l'annonce sur mobile */
+  .chat-ad-banner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
+  .ad-banner-content {
+    width: 100% !important;
+  }
+
+  .ad-banner-title {
+    white-space: normal !important; /* Autorise le retour à la ligne pour le titre */
+    max-width: 100%;
+  }
+
+  .ad-banner-actions {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  .ad-banner-actions .btn-sm {
+    flex: 1 !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
 }
+
+/* --- Styles de boutons généraux dans la messagerie --- */
+.capsule {
+  border-radius: 9999px !important;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none !important;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary) !important;
+  border: 1px solid var(--primary) !important;
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-light) !important;
+  color: var(--primary) !important;
+}
+
+.btn-primary-vinted {
+  background-color: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
+}
+
+.btn-primary-vinted:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: white !important;
+}
+
+/* --- Bandeau d'Annonce dans le Chat --- */
+.chat-ad-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-light);
+  gap: 1.5rem;
+  flex-shrink: 0;
+}
+
+.ad-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.ad-banner-img {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--border-light);
+  flex-shrink: 0;
+  border: 1px solid var(--border-light);
+}
+
+.ad-banner-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ad-banner-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ad-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.ad-banner-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ad-banner-price {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary-vibrant);
+  flex-shrink: 0;
+}
+
+.ad-banner-status {
+  margin-top: 0.25rem;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-indicator.pending {
+  color: #ffc107;
+}
+
+.status-indicator.completed {
+  color: #28a745;
+}
+
+.status-indicator.sold {
+  color: #dc3545;
+}
+
+.status-indicator .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.ad-banner-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ad-banner-actions .btn-sm {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+

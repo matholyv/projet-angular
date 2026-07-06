@@ -12,11 +12,18 @@
         <div class="images-grid" *ngIf="imagePreviews.length > 0">
           <div class="image-preview-wrapper" *ngFor="let preview of imagePreviews; let i = index">
             <img [src]="preview" alt="Aperçu" class="preview-img">
-            <button type="button" class="btn-remove" (click)="removeImage(i)">
+            
+            <button type="button" class="btn-remove" (click)="removeImage(i)" title="Supprimer">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+
+            <!-- Bouton pour passer en photo principale (caché sur l'id 0) -->
+            <button *ngIf="i !== 0" type="button" class="btn-set-main" (click)="setMainImage(i, $event)">
+              Définir comme principale
+            </button>
+
             <div class="main-photo-badge" *ngIf="i === 0">Photo principale</div>
           </div>
         </div>
@@ -63,14 +70,34 @@
           </div>
         </div>
 
-        <!-- Catégorie & Prix (Flex Row) -->
+        <!-- Catégorie, État & Prix (Flex Row) -->
         <div class="form-row">
           <div class="form-control">
             <label for="category">Catégorie</label>
-            <select id="category" formControlName="categoryId">
+            <select id="category" formControlName="categoryId" (change)="onCategoryChange($event)">
               <option value="" disabled selected>Choisis une catégorie</option>
               <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
             </select>
+          </div>
+
+          <!-- Champ État -->
+          <div class="form-control">
+            <label for="condition">État de l'article</label>
+            <select id="condition" formControlName="condition">
+              <option *ngFor="let cond of conditions" [value]="cond">{{ cond }}</option>
+            </select>
+          </div>
+
+          <!-- Champ Taille Dynamique -->
+          <div class="form-control animate-fade" *ngIf="selectedCategory?.hasSize">
+            <label for="size">Taille</label>
+            <select id="size" formControlName="size">
+              <option value="" disabled selected>Sélectionne la taille</option>
+              <option *ngFor="let s of selectedCategory.sizes" [value]="s">{{ s }}</option>
+            </select>
+            <div class="error-msg" *ngIf="adForm.get('size')?.touched && adForm.get('size')?.invalid">
+              Taille requise.
+            </div>
           </div>
 
           <div class="form-control">
@@ -98,7 +125,8 @@
       <app-ad-card
         [title]="adForm.value.title || 'Titre de l\'article'"
         [price]="adForm.value.price || 0"
-        condition="Très bon état"
+        [condition]="adForm.value.condition"
+        [size]="adForm.value.size"
         [imageUrl]="imagePreviews.length > 0 ? imagePreviews[0] : ''"
         [authorPseudo]="$any(currentUser)?.pseudo || $any(currentUser)?.email?.split('@')[0] || 'Vendeur'"
       ></app-ad-card>
