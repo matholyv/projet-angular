@@ -10,7 +10,7 @@ export class ReviewService {
 
   constructor(private http: HttpClient) {}
 
-  createReview(data: { reviewerId: string, revieweeId: string, transactionId: number, rating: number, comment: string }): Observable<any> {
+  createReview(data: { reviewerId: string, revieweeId: string, transactionId: string, rating: number, comment: string }): Observable<any> {
     const token = localStorage.getItem('token');
     return this.http.post(this.apiUrl, data, {
       headers: { Authorization: `Bearer ${token}` }
