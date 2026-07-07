@@ -62,7 +62,7 @@ export class ProfileComponent implements OnInit {
 
     const userStr = localStorage.getItem('currentUser');
     if (userStr) {
-      // S'abonner aux paramètres d'URL pour ouvrir l'onglet souhaité (ex: ?tab=wallet) 🎯
+      // S'abonner aux paramètres d'URL pour ouvrir l'onglet souhaité (ex: ?tab=wallet)
       this.route.queryParams.subscribe(params => {
         if (params['tab'] === 'wallet') {
           this.activeTab = 'wallet';
@@ -157,7 +157,7 @@ export class ProfileComponent implements OnInit {
   switchTab(tab: 'ads' | 'wallet' | 'transactions' | 'reviews') {
     this.activeTab = tab;
     
-    // Mettre à jour les paramètres de l'URL pour garder la navigation synchronisée 🎯
+    // Mettre à jour les paramètres de l'URL pour garder la navigation synchronisée
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab: tab },
@@ -184,7 +184,7 @@ export class ProfileComponent implements OnInit {
     this.isRefilling = true;
     this.cdr.detectChanges();
 
-    // Simuler le délai de validation bancaire (pour l'immersion 💳)
+    // Simuler le délai de validation bancaire (pour l'immersion)
     setTimeout(() => {
       this.authService.refill(this.refillAmount).subscribe({
         next: (updatedUser) => {
